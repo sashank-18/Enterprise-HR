@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Assistant - Analytics</title>
+    <!-- Modern Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js UMD Build with Subresource Integrity Hash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"
+        integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+        </script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-main: transparent;
+            --bg-card: rgba(255, 255, 255, 0.1);
+            --text-main: #000000;
+            --text-muted: #1E293B;
+            --border: rgba(255, 255, 255, 0.55);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --glass-blur: blur(28px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(rgba(249, 250, 251, 0.15), rgba(249, 250, 251, 0.15)), url('/backdrop.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #FFFFFF;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: #FFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-badge {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            border-color: #EF4444;
+            color: #EF4444;
+            background-color: rgba(239, 68, 68, 0.08);
+        }
+
+        /* Container Layout */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+        }
+
+        .side-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-left: 12px;
+        }
+
+        .side-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .side-link:hover,
+        .side-link.active {
+            color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        /* Main Panel Workspace */
+        .main-panel {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+        }
+
+        .page-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Charts Layout Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 640px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panels styling */
+        .panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Analytics Tables */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .access-denied-message {
+            text-align: center;
+            padding: 80px 24px;
+            background: #FFF;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .lock-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="top-nav">
+        <div class="logo-section">
+            <div class="logo-icon"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg></div>
+            <span>Internal Benefits & SOP Assistant</span>
+        </div>
+        <nav class="nav-links">
+            <a href="/upload" class="nav-link">Upload</a>
+            <a href="/credentials" class="nav-link" id="navCredentialsLink" style="display: none;">Credentials</a>
+            <a href="/chatbot" class="nav-link">Chat Assistant</a>
+            <a href="/analytics" class="nav-link active">Analytics</a>
+        </nav>
+        <div class="user-menu">
+            <span class="profile-badge" id="roleBadge">Loading...</span>
+            <span class="profile-badge" id="usernameBadge"
+                style="background-color: transparent; border: 1px solid rgba(255, 255, 255, 0.45); color: #FFFFFF;">...</span>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="side-title">Main Menu</div>
+            <a href="/upload" class="side-link">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Upload</span>
+            </a>
+            <a href="/credentials" id="credentialsSideLink" class="side-link" style="display: none;">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Credentials</span>
+            </a>
+            <a href="/chatbot" class="side-link">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>AI Assistant</span>
+            </a>
+            <a href="/analytics" class="side-link active">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>Analytics</span>
+            </a>
+
+            <div class="side-title" style="margin-top: 24px;">HR Libraries</div>
+            <a href="/chatbot#benefits" class="side-link">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Benefits Library</span>
+            </a>
+            <a href="/chatbot#sop" class="side-link">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span>SOP Library</span>
+            </a>
+        </aside>
+
+        <!-- MAIN PANEL WORKSPACE -->
+        <main class="main-panel" id="mainPanelContent">
+            <!-- Access Guard will place content here dynamically -->
+            <div style="text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 40px;">Validating
+                permissions...</div>
+        </main>
+    </div>
+
+    <script>
+        // Set default global styles for Chart.js to match modern premium theme
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.font.size = 11;
+            Chart.defaults.font.weight = "500";
+            Chart.defaults.color = "#FFFFFF"; // White color for labels and numbers
+        }
+
+        let csrfToken = "";
+        let currentUser = null;
+
+        // Charts references to prevent overlay issues
+        let dailyChart = null;
+        let weeklyChart = null;
+        let categoryChart = null;
+
+        // Initialize CSRF
+        async function fetchCSRF() {
+            try {
+                const res = await fetch("/api/csrf-token");
+                const data = await res.json();
+                csrfToken = data.csrf_token;
+            } catch (err) {
+                console.error("Failed fetching CSRF token:", err);
+            }
+        }
+
+        // Handle Logout
+        async function handleLogout() {
+            try {
+                await fetch("/api/logout", {
+                    method: "POST",
+                    headers: { "X-CSRF-Token": csrfToken }
+                });
+            } catch (e) { }
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+        }
+
+        // Load Session info
+        async function loadSession() {
+            try {
+                const response = await fetch("/api/me");
+                if (!response.ok) {
+                    window.location.href = "/login";
+                    return;
+                }
+                currentUser = await response.json();
+
+                document.getElementById("roleBadge").textContent = currentUser.role;
+                document.getElementById("usernameBadge").textContent = currentUser.username;
+
+                // Show credentials link if HR or Admin
+                if (currentUser.role === "HR Manager" || currentUser.role === "Admin") {
+                    const navCred = document.getElementById("navCredentialsLink");
+                    const sideCred = document.getElementById("credentialsSideLink");
+                    if (navCred) navCred.style.display = "inline-block";
+                    if (sideCred) sideCred.style.display = "flex";
+                }
+
+                // RBAC Guard check: only HR Managers and Admins can view analytics.
+                if (currentUser.role !== "Admin" && currentUser.role !== "HR Manager") {
+                    renderAccessDenied();
+                } else {
+                    renderAnalyticsWorkspace();
+                    loadAnalyticsData();
+                }
+            } catch (error) {
+                console.error("Failed session query:", error);
+                window.location.href = "/login";
+            }
+        }
+
+        // Render Access Denied state for Employees
+        function renderAccessDenied() {
+            const workspace = document.getElementById("mainPanelContent");
+            workspace.replaceChildren();
+
+            const container = document.createElement("div");
+            container.className = "access-denied-message";
+
+            const icon = document.createElement("div");
+            icon.className = "lock-icon";
+            icon.innerHTML = `<svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto; display: block; color: var(--text-muted);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+            container.appendChild(icon);
+
+            const h2 = document.createElement("h2");
+            h2.style.marginBottom = "12px";
+            h2.textContent = "Access Restricted";
+            container.appendChild(h2);
+
+            const p = document.createElement("p");
+            p.style.color = "var(--text-muted)";
+            p.style.fontSize = "14px";
+            p.textContent = "Analytics dashboards are restricted to Administrators and HR Managers. Please return to the Chat Assistant or Employee Dashboard.";
+            container.appendChild(p);
+
+            workspace.appendChild(container);
+        }
+
+        // Render main workspace markup dynamically to follow security rules
+        function renderAnalyticsWorkspace() {
+            const workspace = document.getElementById("mainPanelContent");
+            workspace.replaceChildren();
+
+            // 1. Header
+            const header = document.createElement("div");
+            header.className = "page-header";
+
+            const headerInfo = document.createElement("div");
+            const h1 = document.createElement("h1");
+            h1.className = "page-title";
+            h1.textContent = "System Analytics";
+            headerInfo.appendChild(h1);
+
+            const p = document.createElement("p");
+            p.className = "page-desc";
+            p.textContent = "Query statistics, search logs metrics, and policy document libraries distribution.";
+            headerInfo.appendChild(p);
+            header.appendChild(headerInfo);
+            workspace.appendChild(header);
+
+            // 2. Charts Grid
+            const chartsGrid = document.createElement("div");
+            chartsGrid.className = "charts-grid";
+
+            // Card 1: Daily queries
+            const panel1 = document.createElement("section");
+            panel1.className = "panel";
+            const t1 = document.createElement("h2");
+            t1.className = "panel-title";
+            t1.textContent = "Daily Assistant Queries (Last 7 Days)";
+            panel1.appendChild(t1);
+            const box1 = document.createElement("div");
+            box1.className = "chart-box";
+            const canvas1 = document.createElement("canvas");
+            canvas1.id = "dailyQueriesChart";
+            box1.appendChild(canvas1);
+            panel1.appendChild(box1);
+            chartsGrid.appendChild(panel1);
+
+            // Card 2: Weekly queries
+            const panel2 = document.createElement("section");
+            panel2.className = "panel";
+            const t2 = document.createElement("h2");
+            t2.className = "panel-title";
+            t2.textContent = "Weekly Queries Distribution";
+            panel2.appendChild(t2);
+            const box2 = document.createElement("div");
+            box2.className = "chart-box";
+            const canvas2 = document.createElement("canvas");
+            canvas2.id = "weeklyQueriesChart";
+            box2.appendChild(canvas2);
+            panel2.appendChild(box2);
+            chartsGrid.appendChild(panel2);
+
+            // Card 3: Categories
+            const panel3 = document.createElement("section");
+            panel3.className = "panel";
+            const t3 = document.createElement("h2");
+            t3.className = "panel-title";
+            t3.textContent = "Document Categories Distribution";
+            panel3.appendChild(t3);
+            const box3 = document.createElement("div");
+            box3.className = "chart-box";
+            const canvas3 = document.createElement("canvas");
+            canvas3.id = "categoriesChart";
+            box3.appendChild(canvas3);
+            panel3.appendChild(box3);
+            chartsGrid.appendChild(panel3);
+
+            workspace.appendChild(chartsGrid);
+
+            // 3. Most asked questions panel
+            const qPanel = document.createElement("section");
+            qPanel.className = "panel";
+            const qTitle = document.createElement("h2");
+            qTitle.className = "panel-title";
+            qTitle.textContent = "Most Frequently Asked Questions";
+            qPanel.appendChild(qTitle);
+
+            const tableResp = document.createElement("div");
+            tableResp.className = "table-responsive";
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const trh = document.createElement("tr");
+            const th1 = document.createElement("th");
+            th1.textContent = "Query / Question Text";
+            const th2 = document.createElement("th");
+            th2.textContent = "Total Hits";
+            trh.appendChild(th1);
+            trh.appendChild(th2);
+            thead.appendChild(trh);
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            tbody.id = "faqTableBody";
+            const trLoading = document.createElement("tr");
+            const tdLoading = document.createElement("td");
+            tdLoading.setAttribute("colspan", "2");
+            tdLoading.style.textAlign = "center";
+            tdLoading.style.color = "var(--text-muted)";
+            tdLoading.textContent = "Loading question logs...";
+            trLoading.appendChild(tdLoading);
+            tbody.appendChild(trLoading);
+            table.appendChild(tbody);
+
+            tableResp.appendChild(table);
+            qPanel.appendChild(tableResp);
+            workspace.appendChild(qPanel);
+        }
+
+        // Fetch metrics data and render Chart.js graphs
+        async function loadAnalyticsData() {
+            try {
+                const response = await fetch("/api/dashboard-stats");
+                if (response.ok) {
+                    const stats = await response.json();
+
+                    // Render Charts
+                    renderDailyQueriesChart(stats.daily);
+                    renderWeeklyQueriesChart(stats.weekly);
+                    renderCategoriesChart(stats.categories);
+
+                    // Render FAQ table
+                    renderFAQTable(stats.most_asked);
+                }
+            } catch (error) {
+                console.error("Failed fetching dashboard metrics:", error);
+            }
+        }
+
+        // Render FAQ Table using textContent to prevent XSS
+        function renderFAQTable(faqs) {
+            const tbody = document.getElementById("faqTableBody");
+            tbody.replaceChildren();
+
+            if (faqs.length === 0) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.setAttribute("colspan", "2");
+                td.style.textAlign = "center";
+                td.style.color = "var(--text-muted)";
+                td.textContent = "No question queries registered yet.";
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            faqs.forEach(faq => {
+                const tr = document.createElement("tr");
+
+                const tdQ = document.createElement("td");
+                tdQ.style.fontWeight = "500";
+                tdQ.textContent = faq.question;
+                tr.appendChild(tdQ);
+
+                const tdCount = document.createElement("td");
+                tdCount.style.fontWeight = "700";
+                tdCount.style.color = "#FFFFFF";
+                tdCount.textContent = faq.count;
+                tr.appendChild(tdCount);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Bar Chart - Daily queries
+        function renderDailyQueriesChart(dailyData) {
+            const ctx = document.getElementById("dailyQueriesChart").getContext("2d");
+            const labels = dailyData.map(d => d.date);
+            const counts = dailyData.map(d => d.count);
+
+            if (dailyChart) dailyChart.destroy();
+
+            dailyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Queries count',
+                        data: counts,
+                        backgroundColor: 'rgba(79, 70, 229, 0.65)',
+                        borderColor: '#4F46E5',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Line Chart - Weekly queries
+        function renderWeeklyQueriesChart(weeklyData) {
+            const ctx = document.getElementById("weeklyQueriesChart").getContext("2d");
+            const labels = weeklyData.map(d => d.label);
+            const counts = weeklyData.map(d => d.count);
+
+            if (weeklyChart) weeklyChart.destroy();
+
+            weeklyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Queries',
+                        data: counts,
+                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        borderColor: '#4F46E5',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#4F46E5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(79, 70, 229, 0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: {
+                                color: 'rgba(79, 70, 229, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Doughnut Chart - Categories split
+        function renderCategoriesChart(categoryData) {
+            const ctx = document.getElementById("categoriesChart").getContext("2d");
+            const labels = Object.keys(categoryData);
+            const counts = Object.values(categoryData);
+
+            if (categoryChart) categoryChart.destroy();
+
+            if (labels.length === 0) {
+                // Display placeholder text if no categories exist
+                const canvas = document.getElementById("categoriesChart");
+                const parent = canvas.parentElement;
+                canvas.remove();
+
+                const p = document.createElement("p");
+                p.style.textAlign = "center";
+                p.style.marginTop = "100px";
+                p.style.color = "var(--text-muted)";
+                p.textContent = "Upload PDF policies to see category distributions.";
+                parent.appendChild(p);
+                return;
+            }
+
+            // Harmonic colors
+            const palette = [
+                '#4F46E5', // Indigo
+                '#10B981', // Green
+                '#F59E0B', // Amber
+                '#EF4444', // Red
+                '#06B6D4', // Cyan
+                '#EC4899', // Pink
+                '#8B5CF6', // Purple
+                '#6B7280'  // Gray
+            ];
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: palette.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Run on Page Load
+        window.addEventListener("DOMContentLoaded", async () => {
+            await fetchCSRF();
+            await loadSession();
+        });
+
+        // Floating Chatbot functions
+        function toggleFloatingChatbot() {
+            const win = document.getElementById("floatingChatbotWindow");
+            if (win.style.display === "none" || !win.style.display) {
+                win.style.display = "flex";
+                const log = document.getElementById("floatingChatLog");
+                log.scrollTop = log.scrollHeight;
+            } else {
+                win.style.display = "none";
+            }
+        }
+
+        function appendFloatingMessage(text, isUser) {
+            const log = document.getElementById("floatingChatLog");
+            const container = document.createElement("div");
+            container.style.display = "flex";
+            container.style.justifyContent = isUser ? "flex-end" : "flex-start";
+            container.style.width = "100%";
+
+            const bubble = document.createElement("div");
+            bubble.style.maxWidth = "85%";
+            bubble.style.padding = "10px 14px";
+            bubble.style.borderRadius = "12px";
+            bubble.style.fontSize = "13px";
+            bubble.style.lineHeight = "1.5";
+
+            if (isUser) {
+                bubble.style.borderBottomRightRadius = "2px";
+                bubble.style.backgroundColor = "var(--primary)";
+                bubble.style.color = "#FFFFFF";
+            } else {
+                bubble.style.borderBottomLeftRadius = "2px";
+                bubble.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+                bubble.style.border = "1px solid var(--border)";
+                bubble.style.color = "var(--text-main)";
+            }
+
+            const paragraphs = text.split("\n");
+            paragraphs.forEach((pText, index) => {
+                if (pText.trim()) {
+                    const p = document.createElement("p");
+                    p.textContent = pText;
+                    if (index > 0) p.style.marginTop = "6px";
+                    bubble.appendChild(p);
+                }
+            });
+
+            container.appendChild(bubble);
+            log.appendChild(container);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function appendFloatingTypingIndicator() {
+            const log = document.getElementById("floatingChatLog");
+            const container = document.createElement("div");
+            container.style.display = "flex";
+            container.style.justifyContent = "flex-start";
+            container.style.width = "100%";
+
+            const bubble = document.createElement("div");
+            bubble.style.maxWidth = "85%";
+            bubble.style.padding = "10px 14px";
+            bubble.style.borderRadius = "12px";
+            bubble.style.borderBottomLeftRadius = "2px";
+            bubble.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+            bubble.style.border = "1px solid var(--border)";
+
+            const indicator = document.createElement("div");
+            indicator.className = "typing-indicator";
+            indicator.style.display = "flex";
+            indicator.style.alignItems = "center";
+            indicator.style.gap = "4px";
+            indicator.style.padding = "4px 8px";
+
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement("div");
+                dot.className = "typing-dot";
+                dot.style.width = "6px";
+                dot.style.height = "6px";
+                dot.style.backgroundColor = "var(--text-muted)";
+                dot.style.borderRadius = "50%";
+                dot.style.opacity = "0.4";
+                dot.style.animation = "bounce 1.4s infinite ease-in-out both";
+                if (i === 0) dot.style.animationDelay = "-0.32s";
+                if (i === 1) dot.style.animationDelay = "-0.16s";
+                indicator.appendChild(dot);
+            }
+
+            bubble.appendChild(indicator);
+            container.appendChild(bubble);
+            log.appendChild(container);
+            log.scrollTop = log.scrollHeight;
+
+            return container;
+        }
+
+        function renderFloatingSuggestedChips(chips) {
+            const container = document.getElementById("floatingSuggestedChipsContainer");
+            if (!container) return;
+            container.replaceChildren();
+
+            if (!chips || chips.length === 0) {
+                container.style.display = "none";
+                return;
+            }
+
+            chips.forEach(chipText => {
+                const pill = document.createElement("button");
+                pill.style.backgroundColor = "rgba(255, 255, 255, 0.35)";
+                pill.style.border = "1px solid var(--border)";
+                pill.style.color = "var(--text-main)";
+                pill.style.padding = "6px 10px";
+                pill.style.borderRadius = "12px";
+                pill.style.fontSize = "11px";
+                pill.style.fontWeight = "500";
+                pill.style.cursor = "pointer";
+                pill.style.transition = "all 0.2s ease";
+                pill.style.margin = "2px";
+                pill.style.outline = "none";
+                pill.style.fontFamily = "inherit";
+                pill.style.textAlign = "left";
+
+                pill.onmouseover = () => {
+                    pill.style.backgroundColor = "var(--primary)";
+                    pill.style.color = "#FFFFFF";
+                    pill.style.borderColor = "var(--primary)";
+                    pill.style.transform = "translateY(-1px)";
+                };
+                pill.onmouseout = () => {
+                    pill.style.backgroundColor = "rgba(255, 255, 255, 0.35)";
+                    pill.style.color = "var(--text-main)";
+                    pill.style.borderColor = "var(--border)";
+                    pill.style.transform = "none";
+                };
+
+                pill.onclick = () => {
+                    document.getElementById("floatingChatInput").value = chipText;
+                    document.getElementById("floatingChatForm").dispatchEvent(new Event("submit"));
+                };
+                container.appendChild(pill);
+            });
+            container.style.display = "flex";
+
+            // Auto scroll floating log to make sure chips are visible
+            const log = document.getElementById("floatingChatLog");
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function handleFloatingChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById("floatingChatInput");
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = "";
+            appendFloatingMessage(text, true);
+
+            // Hide suggestions chips container on submit
+            const container = document.getElementById("floatingSuggestedChipsContainer");
+            if (container) container.style.display = "none";
+
+            const typing = appendFloatingTypingIndicator();
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrfToken
+                    },
+                    body: JSON.stringify({ question: text, model: "llama3" })
+                });
+
+                typing.remove();
+
+                const data = await response.json();
+                if (response.ok) {
+                    appendFloatingMessage(data.answer, false);
+                    renderFloatingSuggestedChips(data.followup_questions);
+                } else {
+                    appendFloatingMessage("Error: " + (data.detail || "Failed to retrieve response from AI assistant."), false);
+                }
+            } catch (err) {
+                typing.remove();
+                appendFloatingMessage("Error: Failed to connect to server backend. Verify server connectivity.", false);
+            }
+        }
+    </script>
+
+    <!-- Global Floating Chatbot Widget -->
+    <div id="floatingChatbotTrigger" onclick="toggleFloatingChatbot()"
+        style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background-color: var(--primary); color: #FFFFFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 1000; transition: transform 0.2s ease, background-color 0.2s ease;">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </div>
+
+    <div id="floatingChatbotWindow"
+        style="display: none; flex-direction: column; position: fixed; bottom: 92px; right: 24px; width: 360px; height: 480px; max-height: 80vh; max-width: calc(100vw - 48px); background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); z-index: 1000; overflow: hidden; animation: slideUp 0.3s ease-out;">
+        <!-- Chat Header -->
+        <div
+            style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); background-color: rgba(255, 255, 255, 0.15);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; background-color: #10B981; border-radius: 50%;"></div>
+                <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">AI Support Assistant</span>
+            </div>
+            <button onclick="toggleFloatingChatbot()"
+                style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;">×</button>
+        </div>
+
+        <!-- Chat Message Log -->
+        <div id="floatingChatLog"
+            style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: transparent;">
+            <!-- Welcome message -->
+            <div style="display: flex; justify-content: flex-start; width: 100%;">
+                <div
+                    style="max-width: 85%; padding: 10px 14px; border-radius: 12px; border-bottom-left-radius: 2px; background-color: rgba(255, 255, 255, 0.25); border: 1px solid var(--border); font-size: 13px; line-height: 1.5; color: var(--text-main); text-align: left;">
+                    <p>Hello! I am your AI Assistant. How can I help you navigate the Benefits & SOP platform today?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggested Questions for Floating Chatbot -->
+        <div id="floatingSuggestedChipsContainer"
+            style="display: none; flex-wrap: wrap; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--border); background-color: rgba(255, 255, 255, 0.1);">
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="floatingChatForm" onsubmit="handleFloatingChatSubmit(event)"
+            style="display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); background-color: rgba(255, 255, 255, 0.15); align-items: center;">
+            <input type="text" id="floatingChatInput" placeholder="Type a message or ask a question..."
+                autocomplete="off" required
+                style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background-color: rgba(255, 255, 255, 0.5); outline: none; transition: border-color 0.2s;" />
+            <button type="submit"
+                style="background-color: var(--primary); color: #FFFFFF; border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s;">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </form>
+    </div>
+
+    <style>
+        #floatingChatbotTrigger:hover {
+            transform: scale(1.08);
+            background-color: var(--primary-hover);
+        }
+
+        #floatingChatbotWindow {
+            font-family: 'Inter', sans-serif;
+        }
+
+        #floatingChatInput:focus {
+            border-color: var(--primary);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+
+</html>

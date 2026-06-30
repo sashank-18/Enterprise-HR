@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Benefits & SOP Assistant - Register</title>
+    <!-- Modern Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6; /* Modern Vibrant Blue */
+            --primary-hover: #2563eb;
+            --background: #0f172a; /* Slate 900 */
+            --card-bg: rgba(255, 255, 255, 0.04); /* Ultra-low opacity liquid glass */
+            --form-bg: rgba(255, 255, 255, 0.06); /* Highly transparent liquid glass forms */
+            --text-main: #ffffff; /* Crisp white text for contrast */
+            --text-muted: #cbd5e1; /* Slate 300 */
+            --border: rgba(255, 255, 255, 0.22); /* Translucent highlight borders */
+            --input-border: rgba(255, 255, 255, 0.15);
+            --input-bg: rgba(255, 255, 255, 0.06); /* Frosted inputs */
+            --shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            --glass-blur: blur(28px); /* Deeper blur for smooth liquid refraction */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Separate Background Container for Blur transition */
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+            transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bg-image.blurred {
+            filter: blur(12px) scale(1.03); /* scale avoids halo edge bleed during blur */
+        }
+
+        /* Nav Header */
+        .app-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            z-index: 1000;
+        }
+
+        .logo-area-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .logo-area-nav:hover {
+            opacity: 0.85;
+        }
+
+        .nav-buttons {
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 3px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 17px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: auto;
+            max-width: none;
+        }
+
+        .nav-btn:hover {
+            color: #ffffff;
+        }
+
+        .nav-btn.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hero Tagline for Closed Landing State */
+        .hero-tagline {
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
+            transform: translateY(0);
+            max-width: 650px;
+            padding: 20px;
+            user-select: none;
+        }
+
+        .hero-tagline h1 {
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 16px;
+            color: #ffffff;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+
+        .hero-tagline p {
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 0;
+        }
+
+        .hero-tagline.hidden {
+            opacity: 0;
+            transform: translateY(-24px);
+            pointer-events: none;
+        }
+
+        /* Glassmorphic Container */
+        .auth-container {
+            width: 850px;
+            max-width: 90%;
+            height: 560px;
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            z-index: 20;
+
+            /* Hidden by default state */
+            opacity: 0;
+            transform: scale(0.95) translateY(12px);
+            pointer-events: none;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .auth-container.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Sliding Panel Structure */
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            background: var(--form-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+        }
+
+        .sign-in-container {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+
+        .sign-up-container {
+            left: 0;
+            width: 50%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* Container state modifications */
+        .auth-container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .auth-container.right-panel-active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+        }
+
+        /* Overlay Cover */
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            z-index: 100;
+        }
+
+        .auth-container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            color: #FFF;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .auth-container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 50px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transform: translateX(0);
+            transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .auth-container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .auth-container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        /* Form styling */
+        form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 45px;
+            height: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 26px;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .overlay h1 {
+            color: #FFF;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .overlay p {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* Segmented Role Selector */
+        .role-selector {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 3px;
+            width: 100%;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #cbd5e1; /* Slate 300 */
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .role-option:hover {
+            color: #ffffff;
+        }
+
+        .role-option.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .input-group {
+            width: 100%;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            outline: none;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #ffffff;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        input::placeholder {
+            color: #94a3b8; /* Slate 400 */
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .forgot-link:hover {
+            color: #ffffff;
+        }
+
+        /* Buttons styling */
+        button {
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            background-color: var(--primary);
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px 24px;
+            letter-spacing: 0.1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.ghost {
+            background-color: transparent;
+            border-color: rgba(255, 255, 255, 0.6);
+            max-width: 160px;
+            backdrop-filter: blur(4px);
+        }
+
+        button.ghost:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #FFFFFF;
+        }
+
+        /* Feedback Alerts */
+        .alert {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+            text-align: left;
+            line-height: 1.4;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 16px 24px;
+                position: relative;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .auth-container {
+                height: auto;
+                flex-direction: column;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                margin-top: 10px;
+            }
+            .overlay-container {
+                display: none;
+            }
+            .sign-in-container, .sign-up-container {
+                width: 100%;
+                position: relative;
+                height: auto;
+                padding: 40px 0;
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                border-radius: 16px;
+                box-shadow: var(--shadow);
+                border: 1px solid var(--border);
+            }
+            .sign-in-container {
+                display: none;
+            }
+            .auth-container.right-panel-active .sign-in-container {
+                display: none;
+            }
+            .auth-container.right-panel-active .sign-up-container {
+                display: block;
+                transform: none;
+                opacity: 1;
+            }
+            .mobile-toggle {
+                display: block !important;
+                margin-top: 24px;
+                font-size: 13px;
+                color: var(--primary);
+                cursor: pointer;
+                font-weight: 500;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sibling background element to avoid blurring text/header -->
+    <div class="bg-image" id="bgImage"></div>
+
+    <!-- Enterprise HR Nav Header -->
+    <header class="app-header">
+        <div class="logo-area-nav" id="logoHomeLink">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2.5"/>
+                    <path d="M9 6V5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V6" stroke="currentColor" stroke-width="2.5"/>
+                </svg>
+            </div>
+            <span>Enterprise HR</span>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="navLoginBtn">Login</button>
+            <button class="nav-btn" id="navRegisterBtn">Register</button>
+        </div>
+    </header>
+
+    <!-- Hero Tagline for Closed Landing State -->
+    <div class="hero-tagline" id="heroTagline">
+        <h1>Internal Benefits & SOP Assistant</h1>
+        <p>Your personalized company policy gateway. Select Login or Register above to access employee and HR resources.</p>
+    </div>
+
+    <!-- Active right panel by default -->
+    <div class="auth-container right-panel-active" id="authContainer">
+
+        <!-- SIGN UP / REGISTER FORM -->
+        <div class="form-container sign-up-container">
+            <form id="registerForm">
+                <h1>Create Account</h1>
+                <p>Register to access benefits and SOP guidelines</p>
+                <div class="alert alert-error" id="registerError"></div>
+                <div class="alert alert-success" id="registerSuccess"></div>
+
+                <!-- Access Based Role Selector -->
+                <div class="role-selector">
+                    <div class="role-option active" data-role="Employee" onclick="setRole(this, 'register')">Employee</div>
+                    <div class="role-option" data-role="HR Manager" onclick="setRole(this, 'register')">HR Manager</div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="registerUsername" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="registerEmail" placeholder="Work Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="registerPassword" placeholder="Password (min. 8 characters)" required>
+                </div>
+                <button type="submit">Sign Up</button>
+                <div class="mobile-toggle" onclick="togglePanel(false)">Already have an account? Sign In</div>
+            </form>
+        </div>
+
+        <!-- SIGN IN / LOGIN FORM -->
+        <div class="form-container sign-in-container">
+            <form id="loginForm">
+                <h1>Sign In</h1>
+                <p>Access the company policy and benefits assistant</p>
+                <div class="alert alert-error" id="loginError"></div>
+                <div class="alert alert-success" id="loginSuccess"></div>
+
+                <!-- Access Based Role Selector -->
+                <div class="role-selector">
+                    <div class="role-option active" data-role="Employee" onclick="setRole(this, 'login')">Employee</div>
+                    <div class="role-option" data-role="HR Manager" onclick="setRole(this, 'login')">HR Manager</div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <a class="forgot-link" href="#" onclick="openForgotModal()">Forgot password?</a>
+                <button type="submit">Sign In</button>
+                <div class="mobile-toggle" onclick="togglePanel(true)">Don't have an account? Sign Up</div>
+            </form>
+        </div>
+
+        <!-- SLIDING OVERLAY COVER -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1 style="color: #FFF;">Welcome Back!</h1>
+                    <p>Access your personalized benefits guidelines and HR SOP details.</p>
+                    <button class="ghost" id="signInBtn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1 style="color: #FFF;">New Here?</h1>
+                    <p>Create an employee account and start chatting with the policy assistant.</p>
+                    <button class="ghost" id="signUpBtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let csrfToken = "";
+        let selectedLoginRole = "Employee";
+        let selectedRegisterRole = "Employee";
+
+        const authContainer = document.getElementById("authContainer");
+        const bgImage = document.getElementById("bgImage");
+        const heroTagline = document.getElementById("heroTagline");
+        const signUpBtn = document.getElementById("signUpBtn");
+        const signInBtn = document.getElementById("signInBtn");
+        const navLoginBtn = document.getElementById("navLoginBtn");
+        const navRegisterBtn = document.getElementById("navRegisterBtn");
+        const logoHomeLink = document.getElementById("logoHomeLink");
+
+        // Role switch segment controller
+        function setRole(element, type) {
+            const selector = element.parentElement;
+            const options = selector.querySelectorAll('.role-option');
+            options.forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            
+            const role = element.getAttribute('data-role');
+            if (type === 'login') {
+                selectedLoginRole = role;
+            } else {
+                selectedRegisterRole = role;
+            }
+        }
+
+        // Nav Active Tab Syncer
+        function setNavActive(registerActive) {
+            navLoginBtn.classList.remove("active");
+            navRegisterBtn.classList.remove("active");
+            if (registerActive === true) {
+                navRegisterBtn.classList.add("active");
+            } else if (registerActive === false) {
+                navLoginBtn.classList.add("active");
+            }
+        }
+
+        // Home Reset flow
+        logoHomeLink.addEventListener("click", () => {
+            authContainer.classList.remove("active");
+            bgImage.classList.remove("blurred");
+            heroTagline.classList.remove("hidden");
+            navLoginBtn.classList.remove("active");
+            navRegisterBtn.classList.remove("active");
+            window.history.pushState(null, "", "/");
+            document.title = "Internal Benefits & SOP Assistant";
+        });
+
+        // Nav buttons smooth slide triggers
+        navLoginBtn.addEventListener("click", () => {
+            authContainer.classList.add("active");
+            authContainer.classList.remove("right-panel-active");
+            bgImage.classList.add("blurred");
+            heroTagline.classList.add("hidden");
+            setNavActive(false);
+            window.history.pushState(null, "", "/login");
+            document.title = "Internal Benefits & SOP Assistant - Sign In";
+        });
+
+        navRegisterBtn.addEventListener("click", () => {
+            authContainer.classList.add("active");
+            authContainer.classList.add("right-panel-active");
+            bgImage.classList.add("blurred");
+            heroTagline.classList.add("hidden");
+            setNavActive(true);
+            window.history.pushState(null, "", "/register");
+            document.title = "Internal Benefits & SOP Assistant - Register";
+        });
+
+        // Sync overlay panel ghost buttons with nav header
+        signUpBtn.addEventListener("click", () => {
+            authContainer.classList.add("right-panel-active");
+            setNavActive(true);
+            window.history.pushState(null, "", "/register");
+            document.title = "Internal Benefits & SOP Assistant - Register";
+        });
+
+        signInBtn.addEventListener("click", () => {
+            authContainer.classList.remove("right-panel-active");
+            setNavActive(false);
+            window.history.pushState(null, "", "/login");
+            document.title = "Internal Benefits & SOP Assistant - Sign In";
+        });
+
+        function togglePanel(signUp) {
+            if (signUp) {
+                authContainer.classList.add("right-panel-active");
+                setNavActive(true);
+            } else {
+                authContainer.classList.remove("right-panel-active");
+                setNavActive(false);
+            }
+        }
+
+        async function initCSRF() {
+            try {
+                const response = await fetch("/api/csrf-token");
+                const data = await response.json();
+                csrfToken = data.csrf_token;
+            } catch (error) {
+                console.error("Error setting up CSRF security:", error);
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initCSRF();
+            // Check current path to determine active panel on load
+            const path = window.location.pathname;
+            if (path === "/register" || window.location.hash === "#register") {
+                authContainer.classList.add("right-panel-active");
+                authContainer.classList.add("active");
+                bgImage.classList.add("blurred");
+                heroTagline.classList.add("hidden");
+                setNavActive(true);
+            } else if (path === "/login") {
+                authContainer.classList.remove("right-panel-active");
+                authContainer.classList.add("active");
+                bgImage.classList.add("blurred");
+                heroTagline.classList.add("hidden");
+                setNavActive(false);
+            } else {
+                // Closed state for root
+                authContainer.classList.remove("active");
+                bgImage.classList.remove("blurred");
+                heroTagline.classList.remove("hidden");
+                navLoginBtn.classList.remove("active");
+                navRegisterBtn.classList.remove("active");
+            }
+        });
+
+        // HANDLE REGISTRATION
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = document.getElementById("registerUsername").value.trim();
+            const email = document.getElementById("registerEmail").value.trim();
+            const password = document.getElementById("registerPassword").value;
+
+            const errorAlert = document.getElementById("registerError");
+            const successAlert = document.getElementById("registerSuccess");
+            
+            errorAlert.style.display = "none";
+            successAlert.style.display = "none";
+
+            if (password.length < 8) {
+                errorAlert.textContent = "Password must be at least 8 characters long.";
+                errorAlert.style.display = "block";
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrfToken
+                    },
+                    body: JSON.stringify({ username, email, password, role: selectedRegisterRole })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successAlert.textContent = `Account created as ${selectedRegisterRole}! Redirecting to Sign In...`;
+                    successAlert.style.display = "block";
+                    document.getElementById("registerForm").reset();
+                    setTimeout(() => {
+                        window.location.href = "/login";
+                    }, 1500);
+                } else {
+                    errorAlert.textContent = data.detail || "Registration failed.";
+                    errorAlert.style.display = "block";
+                }
+            } catch (error) {
+                errorAlert.textContent = "Server communication failed. Please try again.";
+                errorAlert.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
